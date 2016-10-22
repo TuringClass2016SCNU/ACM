@@ -2,7 +2,7 @@
 * File Name : math-01-B.cpp
 * Purpose : quick-power-mod & quick-multipy-mod
 * Creation Date : 2016年10月21日
-* Last Modified : 2016年10月21日 星期五 23时27分27秒
+* Last Modified : 2016年10月22日 星期六 15时33分27秒
 * Created By : gou4shi1@qq.com
 ************************************************************************/
 #include <cstdio>
@@ -27,7 +27,7 @@ LL mult_mod(LL a, LL b, LL m) {
     b %= m;
     LL ret = 0, temp = a;
     //e.g. 3*5 = 3*(101) = 3*(100) + 3*(1)  (binary)
-    while (b) {
+    for (; b; b >>= 1) {
         if (b & 1) {
             ret += temp;
             if  (ret > m)
@@ -36,7 +36,6 @@ LL mult_mod(LL a, LL b, LL m) {
         temp <<= 1;
         if (temp > m)
             temp -= m;
-        b >>= 1;
     }
     return ret;
 }
@@ -45,7 +44,7 @@ LL mult_mod(LL a, LL b, LL m) {
  * @brief fast power with mod
  *
  * @param a
- * @param n
+ * @param n (n >= 0)
  * @param m
  *
  * @return a^n (mod m)
@@ -53,11 +52,10 @@ LL mult_mod(LL a, LL b, LL m) {
 LL pow_mod(LL a, LL n, LL m) {
     LL ret = 1, temp = a % m;
     //e.g. 3^5 = 3^(101) = 3^(100) * 3^(1)  (binary)
-    while (n) {
+    for (; n; n >>= 1) {
         if (n & 1)
             ret = mult_mod(ret, temp, m);
         temp = mult_mod(temp, temp, m);
-        n >>= 1;
     }
     return ret;
 }
