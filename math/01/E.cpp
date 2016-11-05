@@ -1,8 +1,8 @@
 /************************************************************************
-* File Name : math-01-D.cpp
-* Purpose : Miller-Rabin Algorithm & Pollard-rho Algorithm
-* Creation Date : 2016年11月04日
-* Last Modified : 2016年11月05日 星期六 23时11分04秒
+* File Name : math-01-E.cpp
+* Purpose : decryption of RSA
+* Creation Date : 2016年11月05日
+* Last Modified : 2016年11月05日 星期六 23时10分14秒
 * Created By : gou4shi1@qq.com
 ************************************************************************/
 #include <cstdio>
@@ -202,23 +202,67 @@ void factorDecomposition(LL n) {
     findFactor(n);
 }
 
+/**
+ * @brief solve ax + by = gcd
+ *
+ * @param a
+ * @param b
+ * @param x
+ * @param y
+ *
+ * @return gcd = gcd(a, b)
+ */
+LL exgcd(LL a, LL b, LL &x, LL &y) {
+    LL x0 = 1, y0 = 0, x1 = 0, y1 = 1;
+    x = 0;
+    y = 1;
+    LL r = a % b;
+    LL q = (a - r) / b;
+
+    while (r) {
+        x = x0 - q*x1; y = y0 - q*y1;
+        x0 = x1; y0 = y1;
+        x1 = x; y1 = y;
+        a = b; b = r;
+        r = a % b; q = (a - r) / b;
+    }
+    return b;
+}
+
+/**
+ * @brief solve ax + by = d
+ *
+ * @param a
+ * @param b
+ * @param d
+ *
+ * @return minimal positive integral solution x
+ */
+LL solve(LL a, LL b, LL d) {
+    LL x, y;
+    LL gcd = exgcd(a, b, x, y);
+
+    if (d % gcd)
+        return -1;
+
+    LL x0 = x * d / gcd;
+    LL k = b / gcd;
+    // x = x0 + k * t (t is integer)
+    return (x0 % k + k) % k;
+}
+
 int main() {
     //freopen("in", "r", stdin);
     srand(time(0));
-    int T;
-    scanf("%d", &T);
-    while (T--) {
-        LL n;
-        scanf("%lld", &n);
-        if (Miller_Rabin(n))
-            puts("Prime");
-        else {
-            factorDecomposition(n);
-            LL ans = factor[0];
-            for (int i = 0; i != factor_num; ++i)
-                ans = min(ans, factor[i]);
-            printf("%lld\n", ans);
-        }
+    LL c, e, n;
+    while (~scanf("%lld%lld%lld", &c, &e, &n)) {
+        factorDecomposition(n);
+        LL p = factor[0], q = factor[1];
+        LL t = (p-1) * (q-1);
+        LL d = solve(e, t, 1);
+        LL m = pow_mod(c, d, n);
+        printf("%lld\n", m);
     }
     return 0;
 }
+
